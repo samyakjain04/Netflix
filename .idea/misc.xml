@@ -10,9 +10,12 @@
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/drawable/ic_baseline_check_circle_outline_24.xml" value="0.1" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/drawable/inactivedots.xml" value="0.1385" />
+        <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/drawable/linearlayoutstrok.xml" value="0.1145" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_choose_your_plan.xml" value="0.18" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_finish_up_account.xml" value="0.1" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_main.xml" value="0.17074275362318841" />
+        <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_mainscreen.xml" value="0.1" />
+        <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_payment_gatway.xml" value="0.1" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_signin.xml" value="0.2" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_splash_sreeen.xml" value="0.14" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_splashscreen.xml" value="0.1" />
@@ -22,6 +25,7 @@
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/activity_swipscreen.xml" value="0.22" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/custom_layout.xml" value="0.13903985507246377" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/lockicon.xml" value="0.22" />
+        <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/paymenttoolbar.xml" value="0.1" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/toolbar_stepone.xml" value="0.22" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/toolbar_stepthree.xml" value="0.1" />
         <entry key="..\:/Users/jains/AndroidStudioProjects/Netflix/app/src/main/res/layout/toolbarsignin.xml" value="0.18888888888888888" />

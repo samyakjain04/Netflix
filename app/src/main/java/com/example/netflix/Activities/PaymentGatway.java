@@ -1,9 +1,7 @@
 package com.example.netflix.Activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -24,66 +22,79 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.netflix.Mainscreens.Mainscreen;
+import com.example.netflix.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentResultListener;
-import com.example.netflix.R;
 
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 public class PaymentGatway extends AppCompatActivity implements PaymentResultListener {
-    String planname,plancost,planformatofcost,UserEmailId,UserPassword;
+    String planname,plancost,planformatofcost,UserEmailId,UserPassword,UserID;
     EditText firstnameedittext,lastnameedittext,contactnumberedittext;
-    Button startmembershipbutton;
+    Button startyoutmembership;
     CheckBox iagree;
-    TextView textUrl,step3of3,Change,costtoset,plannametoset;
-    String firstname,lastname,contactnumber;//userd for fetching the detail(edittext) by button
+    TextView textUrl,step3of3,change,costtoset,plannametoset;
+    String firstname,lastname,contactnumber;
     String TAG="payment error";
     FirebaseAuth firebaseAuth;
-
-
+    FirebaseFirestore firebaseFirestore;
+    Date today,validate;
+    ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
-        setContentView(R.layout.activity_payment_gatway);
         Checkout.preload(this);
+        setContentView(R.layout.activity_payment_gatway);
+        getSupportActionBar().hide();
         Intent i= getIntent();
         planname=i.getStringExtra("PlanName");
         plancost=i.getStringExtra("PlanCost");
         planformatofcost=i.getStringExtra("PlanCostFormat");
         UserEmailId=i.getStringExtra("EmailId");
         UserPassword=i.getStringExtra("Password");
-      //  Toast.makeText(this,""+planname+"\n"+plancost+"\n"+planformatofcost+"\n"+UserEmailId+"\n"+UserPassword,Toast.LENGTH_LONG).show();
-
+        Checkout.preload(getApplicationContext());
         firstnameedittext=findViewById(R.id.firstnameedittext);
-        lastnameedittext=findViewById((R.id.lastnameedittext));
+        lastnameedittext=findViewById(R.id.lastnameedittext);
         contactnumberedittext=findViewById(R.id.contactnumberedittext);
-        startmembershipbutton=findViewById(R.id.startmembershipbutton);
-        textUrl=findViewById(R.id.toputurltext);
+        startyoutmembership=findViewById(R.id.startmembershipbutton);
         iagree=findViewById(R.id.iagree);
-        Change=findViewById(R.id.Change);
-         step3of3=findViewById(R.id.step3of3);
-
-         costtoset=findViewById(R.id.costtoset);
-         costtoset.setText(planformatofcost);
-
-         plannametoset=findViewById(R.id.plannametoset);
-         plannametoset.setText(planname);
-         firebaseAuth=FirebaseAuth.getInstance();
-
-
-        SpannableString stt=new SpannableString("STEP 3 OF 3");
+        textUrl=findViewById(R.id.toputurltext);
+        step3of3=findViewById(R.id.step3of3);
+        change=findViewById(R.id.Change);
+        costtoset=findViewById(R.id.costtoset);
+        costtoset.setText(planformatofcost);
+        plannametoset=findViewById(R.id.plannametoset);
+        plannametoset.setText(planname);
+        firebaseAuth=FirebaseAuth.getInstance();
+        firebaseFirestore=FirebaseFirestore.getInstance();
+        Calendar c=Calendar.getInstance();
+        today=c.getTime();
+        c.add(Calendar.MONTH,1);
+        validate=c.getTime();
+        SpannableString st=new SpannableString("STEP 3 OF 3");
         StyleSpan boldspan=new StyleSpan(Typeface.BOLD);
         StyleSpan boldspan1=new StyleSpan(Typeface.BOLD);
-        stt.setSpan(boldspan,5,6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        stt.setSpan(boldspan1,10,11, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        step3of3.setText(stt);
-
+        st.setSpan(boldspan,5,6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        st.setSpan(boldspan1,10,11, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        step3of3.setText(st);
         SpannableString ss=new SpannableString("By checking the checkbox below, you agree to our Terms of Use, Privacy Statement, and that you are over 18. Netflix will automatically continue your membership and charge the monthly membership fee to your payment method until you cancel. You may cancel at any time to avoid future charges.");
         ClickableSpan clickableSpan=new ClickableSpan() {
             @Override
@@ -97,12 +108,12 @@ public class PaymentGatway extends AppCompatActivity implements PaymentResultLis
                 ds.setColor(Color.BLUE);
             }
         };
-
         ClickableSpan clickableSpan1=new ClickableSpan() {
             @Override
             public void onClick(@NonNull View view) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://help.netflix.com/legal/privacy")));
             }
+            @Override
             public void updateDrawState(@NonNull TextPaint ds) {
                 super.updateDrawState(ds);
                 ds.setColor(Color.BLUE);
@@ -114,67 +125,124 @@ public class PaymentGatway extends AppCompatActivity implements PaymentResultLis
         textUrl.setMovementMethod(LinkMovementMethod.getInstance());
 
 
-        Change.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View view) {
-                 Intent intent=new Intent(PaymentGatway.this,ChooseYourPlan.class);
-                 startActivity(intent);
-             }
-         });
-             startmembershipbutton.setOnClickListener(new View.OnClickListener() {
-                 @Override
-                 public void onClick(View view)
-                 {
-                     startPayment();
-                 }
-             });
+
+        change.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i=new Intent(PaymentGatway.this,ChooseYourPlan.class);
+                startActivity(i);
+            }
+        });
+        startyoutmembership.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(firstnameedittext.getText().toString().length()>3 && lastnameedittext.getText().toString().length()>3 && firstnameedittext.getText().toString().matches("[a-z A-Z]+") && lastnameedittext.getText().toString().matches("[a-z A-Z]+") && contactnumberedittext.getText().toString().length()==10 && iagree.isChecked()) {
+                    progressDialog=new ProgressDialog(PaymentGatway.this);
+                progressDialog.setMessage("Loading...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+                    startPayment();
+                }
+                else {
+                    Toast.makeText(PaymentGatway.this, "someything wrong in if", Toast.LENGTH_SHORT).show();
+                    if(firstnameedittext.getText().toString().length()<=3 ||!firstnameedittext.getText().toString().matches("[a-z A-Z]+"))
+                    {firstnameedittext.setError("Enter a valid first name");
+                        progressDialog.dismiss();}
+                    if(lastnameedittext.getText().toString().length()<=3 ||!lastnameedittext.getText().toString().matches("[a-z A-Z]+"))
+                    {lastnameedittext.setError("Enter a valid last name");
+                        progressDialog.dismiss();}
+                    if(contactnumberedittext.getText().toString().length()!=10)
+                    {contactnumberedittext.setError("Enter a valid 10 digit contact number");
+                        progressDialog.dismiss();}
+                    if(!iagree.isChecked())
+                    {
+                        Toast.makeText(getApplicationContext(),"Please agree the policy",Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                    else
+                    { Toast.makeText(getApplicationContext(),"Please fill the correct user information",Toast.LENGTH_SHORT).show();}
+                    progressDialog.dismiss();
+
+                }
+
+            }
+        });
+
+
     }
-public void startPayment() {
-    Checkout checkout = new Checkout();
-    final Activity activity = this;
-    firstname = firstnameedittext.getText().toString();
-    lastname = lastnameedittext.getText().toString();
-    contactnumber = contactnumberedittext.getText().toString();
-    String name = firstname+lastname;
+    public void startPayment(){
+        Toast.makeText(this, "indise startment method", Toast.LENGTH_SHORT).show();
+        Checkout checkout=new Checkout();
+        checkout.setKeyID("rzp_test_JxYZVcE0OhsvL0");
+        final Activity activity=this;
+        firstname=firstnameedittext.getText().toString();
+        lastname=lastnameedittext.getText().toString();
+        contactnumber=contactnumberedittext.getText().toString();
+        String name=firstname+lastname;
+        try{
+            JSONObject options=new JSONObject();
+            options.put("name",name);
+            options.put("description","APP PAYMENT");
+            options.put("currency","INR");
+            String payment=plancost;
+            double total=Double.parseDouble(payment);
+            total=total*100;
+            options.put("amount",total);
+            options.put("prefill.email",UserEmailId);
+            options.put("prefill.contact",contactnumber);
+            checkout.open(activity,options);
 
-    try {
-        JSONObject options=new JSONObject();
-        options.put("name",name);
-        options.put("description","APP PAYMENT");
-        options.put("currency","INR");
-        String payment=plancost;
-        double total=Double.parseDouble(payment);
-        total=total*100;
-        options.put("amount",total);
-        options.put("prefill.email",UserEmailId);
-        options.put("prefill.contact",contactnumber);
-        checkout.open(activity,options);
-
-    } catch (Exception e) {
-
-        Log.e(TAG,"error occures",e);
+        }catch(Exception e){
+            Log.e(TAG,"error occures",e);
+        }
     }
-}
 
     @Override
     public void onPaymentSuccess(String s) {
         firebaseAuth.createUserWithEmailAndPassword(UserEmailId,UserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                Intent i = new Intent(PaymentGatway.this, Mainscreen.class);
-                startActivity(i);
+                if(task.isSuccessful()) {
+                    UserID=firebaseAuth.getCurrentUser().getUid();
+                    DocumentReference documentReference=firebaseFirestore.collection("Users").document(UserID);
+                    Map<String,Object> user= new HashMap<>();
+                    user.put("Email",UserEmailId);
+                    user.put("First_Name",firstname);
+                    user.put("Last_name",lastname);
+                    user.put("Plan_cost",plancost);
+                    user.put("Contact_number",contactnumber);
+                    user.put("Valid_date",validate);
+                    documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void avoid) {
+                            Intent i=new Intent(PaymentGatway.this,Mainscreen.class);
+                            startActivity(i);
+                            finish();
+                        }
+
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                            if(e instanceof FirebaseNetworkException)
+                            {Toast.makeText(getApplicationContext(),"No internet connection",Toast.LENGTH_SHORT).show();
+                                progressDialog.cancel();}
+
+                            Toast.makeText(getApplicationContext(),"value not stored",Toast.LENGTH_LONG).show();
 
 
+                        }
+                    });
+
+                }
             }
         });
-
-
 
     }
 
     @Override
     public void onPaymentError(int i, String s) {
-        Toast.makeText(this,"paymrnt failed",Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(this, "payment unsucessfull", Toast.LENGTH_SHORT).show();
+        progressDialog.cancel();
     }
 }

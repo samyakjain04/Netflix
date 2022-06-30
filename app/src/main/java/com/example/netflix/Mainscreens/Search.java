@@ -9,22 +9,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
+import android.widget.SearchView;
 
 import com.example.netflix.Adapters.MainRecyclerAdapter;
+import com.example.netflix.Adapters.SearchRecyclerAdapter;
 import com.example.netflix.Model.AllCategory;
 import com.example.netflix.R;
 import com.example.netflix.Retrofit.RetrofitClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
-import com.google.android.material.navigation.NavigationBarView.OnItemReselectedListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,69 +34,46 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class Mainscreen extends AppCompatActivity {
-    TextView tvseriestooltext,movietooltext;
-    MainRecyclerAdapter mainRecyclerAdapter;
+public class Search extends AppCompatActivity {
+    BottomNavigationView bottomNavigationView;
+    SearchRecyclerAdapter mainRecyclerAdapter;
     RecyclerView MainRecycler;
     List<AllCategory> allCategoryList;
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finishAffinity();
-    }
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mainscreen);
-        getSupportActionBar().hide();
-        tvseriestooltext = findViewById(R.id.tvseriestooltext);
-        movietooltext = findViewById(R.id.movietooltext);
-        MainRecycler = findViewById(R.id.MainRecyclerView);
-
-        movietooltext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Mainscreen.this, Movies.class);
-                startActivity(intent);
-            }
-        });
-
-        tvseriestooltext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Mainscreen.this, TvSeries.class);
-                startActivity(intent);
-            }
-        });
-
+        setContentView(R.layout.activity_search);
+        getSupportActionBar().setTitle("Search for show,movie,tvseries....");
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.DKGRAY));
         BottomNavigationView bottomNavigationView;
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        Menu menu = bottomNavigationView.getMenu();
-        MenuItem menuItem = menu.getItem(0);
+        bottomNavigationView=findViewById(R.id.bottom_navigation);
+        Menu menu=bottomNavigationView.getMenu();
+        MenuItem menuItem=menu.getItem(1);
         menuItem.setChecked(true);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
+                switch (item.getItemId()){
                     case R.id.homeicon:
+                        Intent l=new Intent(Search.this, Mainscreen.class);
+                        startActivity(l);
                         break;
                     case R.id.searchicon:
-                        Intent i = new Intent(Mainscreen.this, Search.class);
-                        startActivity(i);
+
                         break;
                     case R.id.settingsicon:
-                        Intent j = new Intent(Mainscreen.this, Settings.class);
+                        Intent j=new Intent(Search.this, Settings.class);
                         startActivity(j);
                         break;
                 }
                 return false;
             }
         });
-        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if (networkInfo == null || !networkInfo.isConnected() || !networkInfo.isAvailable()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        ConnectivityManager connectivityManager=(ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo=connectivityManager.getActiveNetworkInfo();
+        if(networkInfo==null||!networkInfo.isConnected()||!networkInfo.isAvailable()){
+            AlertDialog.Builder builder= new AlertDialog.Builder(this);
             builder.setTitle("No Internet Connection");
             builder.setMessage("Please turn on your internet connection to continue.");
             builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
@@ -105,19 +82,20 @@ public class Mainscreen extends AppCompatActivity {
                     recreate();
                 }
             });
-            AlertDialog alertDialog = builder.create();
+            AlertDialog alertDialog=builder.create();
             alertDialog.show();
             alertDialog.setCanceledOnTouchOutside(false);
-        } else {
-            allCategoryList = new ArrayList<>();
+        }
+        else{
+            allCategoryList=new ArrayList<>();
             getAllMovieData(4);
         }
     }
     public void setMainRecycler(List<AllCategory> allCategoryList){
-        MainRecycler=findViewById(R.id.MainRecyclerView);
+        MainRecycler=findViewById(R.id.SearchRecyclerView);
         RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(this,RecyclerView.VERTICAL,false);
         MainRecycler.setLayoutManager(layoutManager);
-        mainRecyclerAdapter= new MainRecyclerAdapter(this,allCategoryList);
+        mainRecyclerAdapter= new SearchRecyclerAdapter(this,allCategoryList);
         MainRecycler.setAdapter(mainRecyclerAdapter);
     }
 
@@ -148,10 +126,24 @@ public class Mainscreen extends AppCompatActivity {
 
         );
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.searchmenu,menu);
+        MenuItem searachItem=menu.findItem(R.id.searchView);
+        SearchView searchView=(SearchView) searachItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
 
-
-
-
-
+            @Override
+            public boolean onQueryTextChange(String s) {
+                mainRecyclerAdapter.getFilter().filter(s);
+                return false;
+            }
+        });
+        return true;
+    }
 }
-

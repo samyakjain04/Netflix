@@ -1,7 +1,6 @@
 package com.example.netflix.Activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -15,7 +14,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.netflix.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseNetworkException;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,80 +31,114 @@ import java.util.TimerTask;
 public class StepTwo extends AppCompatActivity {
     String planname,plancost,planformatofcost,UserEmailId,UserPassword;
     TextView Signin,step2of3;
-
-    ProgressBar progressbarsteptwo;
     Button continuesteptwo;
-    EditText emailedittextsteptwo,passwordedittextsteptwo;
-    static int counter=0;
-
-
+    EditText emailiedittextsteptwo,passwordedittextsteptwo;
+    ProgressBar progressbarsteptwo;
+    FirebaseAuth firebaseAuth;
+    Boolean X;
+    ProgressDialog progressDialog;
+    int counter=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step_two);
-        Signin=findViewById(R.id.Signin);
-        progressbarsteptwo=findViewById(R.id.progressbarsteptwo);
-        progressbarsteptwo.setVisibility(View.GONE);
-        continuesteptwo=findViewById(R.id.continuesteptwo);
-        passwordedittextsteptwo=findViewById(R.id.passwordedittextsteptwo);
-        emailedittextsteptwo=findViewById(R.id.emailedittextsteptwo);
-        step2of3=findViewById(R.id.step1of3);
-
-
+        getSupportActionBar().hide();
         Intent i= getIntent();
         planname=i.getStringExtra("PlanName");
         plancost=i.getStringExtra("PlanCost");
         planformatofcost=i.getStringExtra("PlanCostFormat");
-        Toast.makeText(this,""+planname+"\n"+plancost+"\n"+planformatofcost,Toast.LENGTH_SHORT).show();
-
+        Signin=findViewById(R.id.Signin);
+        emailiedittextsteptwo=findViewById(R.id.emailedittextsteptwo);
+        passwordedittextsteptwo=findViewById(R.id.passwordedittextsteptwo);
+        progressbarsteptwo=findViewById(R.id.progressbarsteptwo);
+        progressbarsteptwo.setVisibility(View.GONE);
+        continuesteptwo=findViewById(R.id.continuesteptwo);
+        step2of3=findViewById(R.id.step2of3);
+        firebaseAuth=FirebaseAuth.getInstance();
         Signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Intent intent=new Intent(StepTwo.this,SigninActivity.class);
-                startActivity(intent);
-
+                Intent i=new Intent(StepTwo.this, SigninActivity.class);
+                startActivity(i);
             }
         });
-
-
         continuesteptwo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                UserEmailId=emailedittextsteptwo.getText().toString();
+                UserEmailId=emailiedittextsteptwo.getText().toString();
                 UserPassword=passwordedittextsteptwo.getText().toString();
-                Intent intent=new Intent(StepTwo.this,StepThree.class);
-                intent.putExtra("PlanName",planname);
-                intent.putExtra("PlanCost",plancost);
-                intent.putExtra("PlanCostFormat",planformatofcost);
-                intent.putExtra("EmailId",UserEmailId);
-                intent.putExtra("Password",UserPassword);
-                startActivity(intent);
+                X=true;
+                if(UserEmailId.length()<10||!UserEmailId.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$"))
+                {emailiedittextsteptwo.setError("Enter a valid email id");
+                    X=false;}
+                if(UserPassword.length()<8)
+                {passwordedittextsteptwo.setError("Password to short");
+                    X=false;}
+                if(X)
+                {progressDialog=new ProgressDialog(StepTwo.this);
+                    progressDialog.setMessage("Loading...");
+                    progressDialog.show();
+                    progressDialog.setCancelable(false);
+                    firebaseAuth.signInWithEmailAndPassword(UserEmailId,UserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful())
+                            { X=false;
+
+                                Toast.makeText(getApplicationContext(),"Please enter via the main login screen",Toast.LENGTH_SHORT).show();
+                                Intent i=new Intent(StepTwo.this,SigninActivity.class);
+                                startActivity(i);
+
+
+                            }else {
+                                if(task.getException() instanceof FirebaseAuthInvalidCredentialsException)
+                                {emailiedittextsteptwo.setError("Email id already registered");
+                                    X=false;
+                                    progressDialog.cancel();}
+                                if(task.getException() instanceof FirebaseNetworkException)
+                                {Toast.makeText(getApplicationContext(),"No internet connection",Toast.LENGTH_SHORT).show();
+                                    X=false;
+                                    progressDialog.cancel();}
+                            }
+                            if(UserEmailId.length()>9 && UserPassword.length()>7&& UserEmailId.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$")&& X)
+                            {Intent i=new Intent(StepTwo.this,StepThree.class);
+                                i.putExtra("PlanName",planname);
+                                i.putExtra("PlanCost",plancost);
+                                i.putExtra("PlanCostFormat",planformatofcost);
+                                i.putExtra("EmailId",UserEmailId);
+                                i.putExtra("Password",UserPassword);
+                                startActivity(i);
+                                progressDialog.cancel();}
+
+                        }
+                    });
+
+                }
+
 
             }
         });
+        SpannableString st=new SpannableString("STEP 2 OF 3");
+        StyleSpan boldspan=new StyleSpan(Typeface.BOLD);
+        StyleSpan boldspan1=new StyleSpan(Typeface.BOLD);
+        st.setSpan(boldspan,5,6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        st.setSpan(boldspan1,10,11, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        step2of3.setText(st);
+
     }
-
-
-    public void progress()
-    {
-        Timer timer = new Timer();
-        TimerTask timerTask=new TimerTask() {
+    public void progress(){
+        final Timer timer =new Timer();
+        TimerTask timerTask= new TimerTask() {
             @Override
-            public void run()
-            {
+            public void run() {
                 counter++;
                 progressbarsteptwo.setProgress(counter);
-                if(counter==1000)
-                {
-
+                if(counter==1000){
                     timer.cancel();
                 }
+
             }
         };
         timer.schedule(timerTask,0,100);
-
-
     }
-
 }

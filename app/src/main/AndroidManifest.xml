@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.netflix">
-    <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -12,34 +13,72 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".Mainscreens.MovieDetail"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Mainscreens.VideoPlayer"
+            android:screenOrientation="landscape"
+            android:exported="false" />
+        <activity
+            android:name=".Mainscreens.Search"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Mainscreens.TvSeries"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Mainscreens.Settings"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Mainscreens.Movies"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.PaymentOverdue"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name=".Activities.PaymentGatway"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activities.StepThree"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activities.StepTwo"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activities.FinishUpAccount"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activities.ChooseYourPlan"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activities.StepOne"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activities.Swipscreen"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Mainscreens.Mainscreen"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activities.SigninActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".Activities.SplashSreeen"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,6 +86,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <receiver
             android:name="com.razorpay.RzpTokenReceiver"
             android:exported="false">
@@ -62,11 +102,13 @@
             android:theme="@style/CheckoutTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <data
                     android:host="rzp.io"
                     android:scheme="io.rzp" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.razorpay.ApiKey"
             android:value="rzp_test_JxYZVcE0OhsvL0" />

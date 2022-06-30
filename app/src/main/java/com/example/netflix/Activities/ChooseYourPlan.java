@@ -30,7 +30,7 @@ public class ChooseYourPlan extends AppCompatActivity {
         radiobuttonforstandard = findViewById(R.id.radiobuttonforstandard);
         radiobuttonforpremium = findViewById(R.id.radiobuttonforpremium);
         radiobuttonforbasic.setOnCheckedChangeListener(new Radio_check());
-        radiobuttonforbasic.setChecked(true);
+        radiobuttonforpremium.setChecked(true);
         radiobuttonforstandard.setOnCheckedChangeListener(new Radio_check());
         radiobuttonforpremium.setOnCheckedChangeListener(new Radio_check());
         continuebuttonchooseplan.setOnClickListener(new View.OnClickListener() {

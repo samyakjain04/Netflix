@@ -40,6 +40,7 @@ public class Search extends AppCompatActivity {
     RecyclerView MainRecycler;
     List<AllCategory> allCategoryList;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,7 +113,6 @@ public class Search extends AppCompatActivity {
                         setMainRecycler(allCategoryList);
 
                     }
-
                     @Override
                     public void onError(Throwable e) {
 

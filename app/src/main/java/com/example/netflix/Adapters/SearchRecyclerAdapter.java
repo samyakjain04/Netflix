@@ -2,6 +2,7 @@ package com.example.netflix.Adapters;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,6 @@ private Filter exampleFilter=new Filter() {
 
         if(charSequence==null|| charSequence.length()==0){
             filteredList.addAll(allCategoryList);
-
         }
         else{
             String filterpattern = charSequence.toString().toLowerCase().trim();
@@ -66,6 +66,7 @@ private Filter exampleFilter=new Filter() {
         }
         FilterResults results=new FilterResults();
         results.values=filteredList;
+        Log.d("check", "performFiltering: "+filteredList.size());
         return results;
 
     }
@@ -73,7 +74,7 @@ private Filter exampleFilter=new Filter() {
     @Override
     protected void publishResults(CharSequence constraint, FilterResults filterResults) {
         allCategoryList.clear();
-        allCategoryList.addAll((List) filterResults);
+        allCategoryList.addAll((List) filterResults.values);
         notifyDataSetChanged();
     }
 
